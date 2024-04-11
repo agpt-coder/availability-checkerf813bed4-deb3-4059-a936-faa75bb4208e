@@ -1,0 +1,132 @@
+// datasource db defines the database connection settings.
+// It is configured for PostgreSQL and uses an environment variable for the connection URL.
+// The 'extensions' feature enables the use of PostgreSQL-specific data types.
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// generator db configures Prisma Client settings.
+// It is set up to use Prisma Client Python with asyncio interface and specific features.
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Profile      Profile?
+  Schedules    Schedule[]
+  Integration  Integration[]
+  Notification Notification[]
+  Report       Report[]
+  AuthToken    AuthToken[]
+}
+
+model Profile {
+  id        String @id @default(dbgenerated("gen_random_uuid()"))
+  firstName String
+  lastName  String
+  userId    String @unique
+  User      User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Schedule {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId      String
+  startTime   DateTime
+  endTime     DateTime
+  title       String
+  description String?
+  available   Boolean  @default(true)
+
+  User User @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Appointment Appointment[]
+}
+
+model Appointment {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  scheduleId  String
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+
+  Schedule Schedule @relation(fields: [scheduleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Integration {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId       String
+  service      String
+  accessToken  String
+  refreshToken String?
+  expiryDate   DateTime?
+
+  User User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id      String  @id @default(dbgenerated("gen_random_uuid()"))
+  userId  String
+  message String
+  seen    Boolean @default(false)
+
+  User User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id         String     @id @default(dbgenerated("gen_random_uuid()"))
+  userId     String
+  content    String
+  reportType ReportType
+
+  User User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuthToken {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId     String
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  expiryDate DateTime
+
+  User User @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  Professional
+  Administrator
+  ITSupport
+}
+
+enum ReportType {
+  Activity
+  SystemUsage
+}
+

@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "availability-checker"
+version = "0.1.0"
+description = "To develop a function that returns the real-time availability of professionals, updating based on current activity or schedule, we'll utilize the following tech stack: Python as the programming language, FastAPI for the API framework, PostgreSQL for the database, and Prisma as the ORM. The system will focus on professionals in sectors where immediate response is crucial, such as healthcare, IT support, and customer service. Updates to a professional's availability status will be triggered by various activities including new appointments, meeting completions, and schedule changes."
+authors = ["AutoGPT <info@agpt.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+bcrypt = "*"
+fastapi = "^0.68.0"
+prisma = "*"
+pydantic = "*"
+python-dateutil = "^2.8.2"
+python-jose = "^3.3.0"
+uvicorn = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
